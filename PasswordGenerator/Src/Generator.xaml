@@ -1,0 +1,36 @@
+﻿<Window x:Class="PasswordGenerator.Src.Generator"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PasswordGenerator.Src"
+        mc:Ignorable="d"
+        Title="Generator" Height="587" Width="324" WindowStartupLocation="CenterScreen">
+    <Grid Margin="0,0,0,-6">
+        <Button Content="Generate" Click ="Button_Click"  HorizontalAlignment="Left" Margin="40,310,0,0" VerticalAlignment="Top" Width="240" RenderTransformOrigin="0.573,1.4" Height="30"/>
+        <CheckBox Name="upperCaseC" Content="(ABC...)" HorizontalAlignment="Left" Margin="180,40,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.127,0.467" IsChecked="True" Height="15" Width="57" Grid.Row="2"/>
+        <CheckBox Name ="lowerCaseC" Content="(abc...)" HorizontalAlignment="Left" Margin="180,81,0,0" VerticalAlignment="Top" IsChecked="True" Height="15" Width="54" Grid.Row="2"/>
+        <CheckBox Name="numberC" Content="(123...)" HorizontalAlignment="Left" Margin="180,161,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.085,-0.8" IsChecked="True" Height="15" Width="54" Grid.Row="2"/>
+        <CheckBox Name="symbolC" Content="(!@#...)" HorizontalAlignment="Left" Margin="180,201,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.085,-0.8" IsChecked="True" Height="15" Width="57" Grid.Row="2"/>
+        <CheckBox Name="symbolUC" Content="(¢©µ)" HorizontalAlignment="Left" Margin="180,280,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.085,-0.8" Height="15" Width="51" Grid.Row="2"/>
+        <ComboBox Name="comboBox"  HorizontalAlignment="Left" Margin="160,2,0,0" VerticalAlignment="Top" Width="135" Height="22"/>
+        <Label Content="Password Length" HorizontalAlignment="Left" Margin="30,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.184,-0.192" Height="24" Width="112"/>
+        <Label Content="Use Uppercase set" HorizontalAlignment="Left" Margin="29,34,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.184,-0.192" Height="26" Width="107" Grid.Row="2"/>
+        <Label Content="Use Lowercase set" HorizontalAlignment="Left" Margin="30,75,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.184,-0.192" Height="26" Width="106" Grid.Row="2"/>
+        <Label Content="Use Number set" HorizontalAlignment="Left" Margin="29,155,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.184,-0.192" Height="26" Width="95" Grid.Row="2"/>
+        <Label Content="Use Symbol set" HorizontalAlignment="Left" Margin="29,195,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.184,-0.192" Height="26" Width="91" Grid.Row="2"/>
+        <Label Content="Use Ambiguous set" HorizontalAlignment="Left" Margin="30,234,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.184,-0.192" Height="26" Width="112" Grid.Row="2"/>
+        <Label Content="Use Phrase set" HorizontalAlignment="Left" Margin="29,114,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.184,-0.192" Height="26" Width="87" Grid.Row="2"/>
+        <CheckBox Name="phraseC" Content="(words)" HorizontalAlignment="Left" Margin="180,120,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.085,-0.8" IsEnabled="False" Height="15" Width="59" Grid.Row="2"/>
+        <CheckBox Name="symbolAC" Content="(\ | /)" HorizontalAlignment="Left" Margin="180,240,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.085,-0.8" Height="15" Width="46" Grid.Row="2"/>
+        <Label Content="Use Unicode set" HorizontalAlignment="Left" Margin="30,274,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.184,-0.192" Height="26" Width="95" Grid.Row="2"/>
+        <Label Content="Password" HorizontalAlignment="Left" Margin="30,435,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.184,-0.192" Height="25" Width="66"/>
+        <Label Content="Domain" HorizontalAlignment="Left" Margin="30,355,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.184,-0.192" Height="24" Width="55"/>
+        <Label Content="Username" HorizontalAlignment="Left" Margin="30,396,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.184,-0.192" Height="24" Width="66"/>
+        <TextBlock Name="outputField" HorizontalAlignment="Left" Margin="139,440,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="156" Height="20"/>
+        <TextBox Name="domainField" HorizontalAlignment="Left" Height="18" Margin="139,361,0,0" TextWrapping="Wrap" Text="Domain" VerticalAlignment="Top" Width="141" IsEnabled="False"/>
+        <TextBox Name="usernameField" HorizontalAlignment="Left" Height="20" Margin="139,400,0,0" TextWrapping="Wrap" Text="Username" VerticalAlignment="Top" Width="141" IsEnabled="False"/>
+        <Button Name="submit" Click="Submit_Click" Content="Submit" HorizontalAlignment="Left" Margin="40,500,0,0" VerticalAlignment="Top" Width="240" RenderTransformOrigin="0,0" Height="30" IsEnabled="False"/>
+
+    </Grid>
+</Window>

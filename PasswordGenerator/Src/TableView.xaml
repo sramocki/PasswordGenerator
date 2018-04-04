@@ -1,0 +1,33 @@
+﻿<Window x:Class="PasswordGenerator.Src.TableView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PasswordGenerator.Src"
+        mc:Ignorable="d"
+        Title="TableView" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Menu HorizontalAlignment="Left" Margin="0,0,0,389" Width="792">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New Password" Click="GenerateView_Click"/>
+                <MenuItem Header="_Save" Click="Save_Click"/>
+                <MenuItem Header="_Import" Click="Import_Click"/>
+                <MenuItem Header="_Export" Click="Export_Click"/>
+                <MenuItem Header="_Exit" Click="Shutdown_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About" Click="About_Click"/>
+            </MenuItem>
+        </Menu>
+        <ListView Margin="270,66,67,54" Name="listTable">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Domain" Width="120" DisplayMemberBinding="{Binding DomainSite}" />
+                    <GridViewColumn Header="Username" Width="120" DisplayMemberBinding="{Binding SiteLogin}" />
+                    <GridViewColumn Header="Password" Width="50" DisplayMemberBinding="{Binding SitePassword}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
+
+</Window>
