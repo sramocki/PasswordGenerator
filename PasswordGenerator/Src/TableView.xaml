@@ -4,30 +4,45 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PasswordGenerator.Src"
+        ResizeMode="CanMinimize"
         mc:Ignorable="d"
-        Title="TableView" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+        Closing="Window_Closing" 
+        Closed="Window_Closed"
+        Title="TableView" Height="632" Width="1084" WindowStartupLocation="CenterScreen">
     <Grid>
-        <Menu HorizontalAlignment="Left" Margin="0,0,0,389" Width="792">
+        <Menu HorizontalAlignment="Left" Margin="0,0,0,571" Width="1076">
             <MenuItem Header="_File">
                 <MenuItem Header="_New Password" Click="GenerateView_Click"/>
+                <MenuItem Header="_Export" Click="ExportData_Click"/>
                 <MenuItem Header="_Save" Click="Save_Click"/>
-                <MenuItem Header="_Import" Click="Import_Click"/>
-                <MenuItem Header="_Export" Click="Export_Click"/>
+                <MenuItem Header="_Print" Click="PrintData_Click"/>
+                <MenuItem Header="_Logout" Click="LogOut_Click"/>
                 <MenuItem Header="_Exit" Click="Shutdown_Click"/>
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="_About" Click="About_Click"/>
             </MenuItem>
         </Menu>
-        <ListView Margin="270,66,67,54" Name="listTable">
+        <ListView Margin="165,85,36,36" Name="listTable">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Domain" Width="120" DisplayMemberBinding="{Binding DomainSite}" />
-                    <GridViewColumn Header="Username" Width="120" DisplayMemberBinding="{Binding SiteLogin}" />
-                    <GridViewColumn Header="Password" Width="50" DisplayMemberBinding="{Binding SitePassword}" />
+                    <GridViewColumn Header="Domain" Width="120" DisplayMemberBinding="{Binding Address}" />
+                    <GridViewColumn Header="Username" Width="120" DisplayMemberBinding="{Binding Login}" />
+                    <GridViewColumn Header="Password" Width="120" DisplayMemberBinding="{Binding Password}" />
+                    <GridViewColumn Header="Last Updated" Width="120" DisplayMemberBinding="{Binding TimeUpdated}" />
+                    <GridViewColumn Header="Comment" Width="120" DisplayMemberBinding="{Binding Comment}" />
                 </GridView>
             </ListView.View>
         </ListView>
+        <ListView Name="FilterList" SelectionChanged="SelectionChanged" HorizontalAlignment="Left" Height="235" Margin="35,85,0,0" VerticalAlignment="Top" Width="100" SelectedIndex="0" SelectionMode="Single">
+            <ListViewItem x:Name="All" Content="All"/>
+            <ListViewItem x:Name="Bank" Content="Bank"/>
+            <ListViewItem x:Name="Game" Content="Game"/>
+            <ListViewItem x:Name="General" Content="General"/>
+            <ListViewItem x:Name="Forum" Content="Forum"/>
+            <ListViewItem x:Name="School" Content="School"/>
+            <ListViewItem x:Name="Shopping" Content="Shopping"/>
+            <ListViewItem x:Name="Work" Content="Work"/>
+        </ListView>
     </Grid>
-
 </Window>

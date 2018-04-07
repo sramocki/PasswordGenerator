@@ -1,111 +1,130 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace PasswordGenerator.Src
 {
     [Serializable]
     public class Account
     {
+        private const int SaltSize = 8;
         private static Dictionary<string, Account> map = new Dictionary<string, Account>();
-        private static string fileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Ramocki\passgen.dat");
-        private static FileInfo currentFile = new FileInfo(fileName);
+        private static readonly string DefaultPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Ramocki\data.ramocki");
+        private static string previousPath = WorkingPath;
+        public static string WorkingPath { set; get; } = DefaultPath;
+        public static FileInfo CurrentFile { set; get; } = new FileInfo(WorkingPath);
 
-        private string username, password;
+        [NonSerialized]
+        private static string currentPassword;
+
+        private string username;
         public Storage Storage { get; set; }
-        public Test Test { get; set; }
-        public string Username { get => username; set => username = value; }
 
-        public Account(string username, string password)
+        public Account(string username)
         {
             this.username = username;
-            this.password = password;
-            Storage storage2 = new Storage();
-            Storage = storage2;
-            Test test = new Test();
-            Test = test;
+            Storage = new Storage();
         }
 
-        public static bool CreateAccount(string passedUser, string passedPassword)
+        public void ResetPathPrevious()
         {
-            if(map.ContainsKey(passedUser))
-            {
-                return false;
-            }
-            Account temp = new Account(passedUser, passedPassword);
-            map.Add(passedUser, temp);
-            Save();
-            return true;
+            WorkingPath = DefaultPath;
         }
 
-        public static bool ValidLogin(string username, string password)
+        public void ResetPathDefault()
         {
-            if (map.ContainsKey(username))
+            WorkingPath = previousPath;
+        }
+
+        public static bool Save()
+        {
+            try
             {
-                map.TryGetValue(username, out Account tempAccount);
-                if (tempAccount.password.Equals(password))
+                var keyGenerator = new Rfc2898DeriveBytes(currentPassword, SaltSize);
+                var rijndael = Rijndael.Create();
+
+                rijndael.IV = keyGenerator.GetBytes(rijndael.BlockSize / 8);
+                rijndael.Key = keyGenerator.GetBytes(rijndael.KeySize / 8);
+
+                using (var fs = new FileStream(WorkingPath, FileMode.Create, FileAccess.Write))
                 {
-                    return true;
+                    fs.Write(keyGenerator.Salt, 0, SaltSize);
+                    using (var cryptoStream = new CryptoStream(fs, rijndael.CreateEncryptor(), CryptoStreamMode.Write))
+                    {
+                        BinaryFormatter formatter = new BinaryFormatter();
+                        formatter.Serialize(cryptoStream, map);
+                    }
                 }
-
-            }
-            return false;
-        }
-
-        public static bool Exists(string username)
-        {
-            if(map.ContainsKey(username))
-            {
+                //CurrentFile.Attributes |= FileAttributes.Hidden;
                 return true;
             }
-            return false;
-        }
-
-        public static void Save()
-        {
-            try
+            catch(Exception e)
             {
-                using (Stream fstream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write))
-                {
-                    BinaryFormatter binaryFormatter = new BinaryFormatter();
-                    binaryFormatter.Serialize(fstream, map);
-                    Console.WriteLine("Saved");
-                }
-            }
-            catch (IOException e)
-            {
-                Debug.WriteLine(e.ToString());
+                Console.WriteLine(e.InnerException);
+                return false;
             }
         }
 
-        public static void Load()
+        public static void CreateAccount(string key)
         {
-            Dictionary<string, Account> ret;
+            Account temp = new Account("home");
+            map.Add("home", temp);
+            currentPassword = key;
+        }
+
+        public static int Load(string password)
+        {
             try
             {
-                using (Stream fstream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Read))
+                //CurrentFile.Attributes &= ~FileAttributes.Hidden;
+                Dictionary<string, Account> ret;
+                var salt = new byte[SaltSize];
+                using (Stream fs = new FileStream(WorkingPath, FileMode.Open, FileAccess.Read))
                 {
-                    if(fstream.Length.Equals(0))
+                    fs.Read(salt, 0, SaltSize);
+                    var keyGenerator = new Rfc2898DeriveBytes(password, salt);
+                    var rijndael = Rijndael.Create();
+                    rijndael.IV = keyGenerator.GetBytes(rijndael.BlockSize / 8);
+                    rijndael.Key = keyGenerator.GetBytes(rijndael.KeySize / 8);
+                    using (var cryptoStream = new CryptoStream(fs, rijndael.CreateDecryptor(), CryptoStreamMode.Read))
                     {
-                        return;
+
+                        if (fs.Length.Equals(0))
+                        {
+                            return 0;
+                        }
+
+                        BinaryFormatter binaryFormatter = new BinaryFormatter();
+                        ret = (Dictionary<string, Account>) binaryFormatter.Deserialize(cryptoStream);
                     }
-                    BinaryFormatter binaryFormatter = new BinaryFormatter();
-                    ret = (Dictionary<string, Account>)binaryFormatter.Deserialize(fstream);
                 }
-                map = ret;   
+
+                currentPassword = password;
+                map = ret;
+                return 1;
             }
-            catch (IOException e)
+            catch (SerializationException ex)
             {
-                Debug.WriteLine(e.ToString());
+                Console.WriteLine(ex.InnerException);
+                return -1;
+            }
+            catch (FileNotFoundException ex)
+            {
+                Console.WriteLine(ex.InnerException);
+                return -2;
             }
         }
 
-        public static Account GetAccount(string disusername)
+        public static Account GetAccount()
         {
             Account value;
-            if (map.TryGetValue(disusername, out value))
+            if (map.TryGetValue("home", out value))
             {
                 return value;
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,16 +21,11 @@ namespace PasswordGenerator.Src
     {
         public Account Account { get; set; }
 
-        public TableView(Account passedAccount)
+        public TableView()
         {
-            Account = passedAccount;
+            Account = Account.GetAccount();
             InitializeComponent();
-            Console.WriteLine(Account.Storage.DomainList.Count);
-            Console.WriteLine(Account.Test.Number);
-            foreach(Domain dm in Account.Storage.DomainList)
-            {
-                listTable.Items.Add(dm);
-            }
+            listTable.ItemsSource = Account.Storage.DomainList;
         }
 
         private void Shutdown_Click(object sender, RoutedEventArgs e)
@@ -39,6 +35,23 @@ namespace PasswordGenerator.Src
             if (MessageBox.Show("Do you want to close this program", "Confirmation", buttons, icon) == MessageBoxResult.Yes)
             {
                 Application.Current.Shutdown();
+            }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+
+            if (File.Exists(Account.WorkingPath))
+            {
+                //Account.CurrentFile.Attributes |= FileAttributes.Hidden;
+            }
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            if (File.Exists(Account.WorkingPath))
+            {
+                //Account.CurrentFile.Attributes |= FileAttributes.Hidden;
             }
         }
 
@@ -55,23 +68,114 @@ namespace PasswordGenerator.Src
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            Account.Save();
+            bool temp = Account.Save();
+            if (temp)
+            {
+                MessageBox.Show("Data saved", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            }
+            else
+            {
+                MessageBox.Show("Could not save data", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+            }
         }
 
-        private void Import_Click(object sender, RoutedEventArgs e)
+        private void LogOut_Click(object sender, RoutedEventArgs e)
         {
-
+            //todo logout
         }
 
-        private void Export_Click(object sender, RoutedEventArgs e)
+        private void ExportData_Click(object sender, RoutedEventArgs e)
         {
-            Account.Test.Number = 6;
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.FileName = "data";
+            dlg.DefaultExt = ".ramocki";
+            dlg.Filter = "Stored data (.ramocki)|*.ramocki";
+            bool? result = dlg.ShowDialog();
+
+            // Process save file dialog box results
+            if (result == true)
+            {
+                Account.WorkingPath = dlg.FileName;
+                bool temp = Account.Save();
+                if (temp)
+                {
+                    MessageBox.Show("Data saved", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                }
+                else
+                {
+                    MessageBox.Show("Could not save data", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                }
+
+                Account.ResetPathPrevious();
+            }
         }
         
-        public void RefreshList(Domain domain)
+        public void RefreshList()
         {
+            listTable.ItemsSource = null;
+            listTable.ItemsSource = Account.Storage.DomainList;
+        }
 
-            listTable.Items.Add(domain);
+        public void Modify(Domain domain)
+        {
+            Account.Storage.DomainList.Add(domain);
+            RefreshList();
+        }
+
+        public void PrintData_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Controls.PrintDialog dlg = new System.Windows.Controls.PrintDialog();
+            dlg.PageRangeSelection = PageRangeSelection.AllPages;
+            dlg.UserPageRangeEnabled = true;
+
+            // Show save file dialog box
+            Nullable<bool> result = dlg.ShowDialog();
+
+            // Process save file dialog box results
+            if (result == true)
+            {
+                // Print document
+            }
+
+        }
+
+        private void SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            listTable.ItemsSource = null;
+            switch ((FilterList.SelectedItem as ListViewItem)?.Content.ToString())
+            {
+                case "All":
+                    listTable.ItemsSource = Account.Storage.DomainList;
+                    break;
+                case "Bank":
+                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Bank).ToList();
+                    break;
+                case "Game":
+                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Game).ToList();
+                    break;
+                case "General":
+                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.General).ToList();
+                    break;
+                case "Forum":
+                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Forum).ToList();
+                    break;
+                case "School":
+                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.School).ToList();
+                    break;
+                case "Shopping":
+                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Shopping).ToList();
+                    break;
+                case "Work":
+                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Work).ToList();
+                    break;
+                default:
+                    Console.WriteLine("Something went wrong here...");
+                    break;
+            }
         }
     }
 }

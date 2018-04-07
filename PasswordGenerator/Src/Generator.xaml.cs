@@ -23,19 +23,14 @@ namespace PasswordGenerator.Src
         private const string numberCase = "1234567890";
         private const string symbolCase = "!@#$%^&*";
         private const string symbolCaseU = "<>(){}";
-        private Account account;
 
         public Generator()
         {
             InitializeComponent();
-            comboBox.Items.Add("10");
-            comboBox.Items.Add("20");
             comboBox.SelectedIndex = 0;
             upperCaseC.IsChecked = true;
-            account = new Account("", "");
+            TypeSelector.SelectedIndex = 2;
         }
-
-        public Account Account { get => account; set => account = value; }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -63,13 +58,12 @@ namespace PasswordGenerator.Src
             if(builder.Length != 0)
             {
                 Generate(builder.ToString());
-            }
-            
+            } 
         }
 
         private void Generate(String valid)
         {
-            int lengthOutput = Int32.Parse(comboBox.SelectedItem.ToString());
+            int lengthOutput = Int32.Parse(comboBox.Text);
             StringBuilder output = new StringBuilder();
             using (RNGCryptoServiceProvider random = new RNGCryptoServiceProvider())
             {
@@ -87,16 +81,16 @@ namespace PasswordGenerator.Src
             domainField.IsEnabled = true;
             usernameField.IsEnabled = true;
             submit.IsEnabled = true;
+            commentField.IsEnabled = true;
             outputField.Text = output.ToString();
             Clipboard.SetText(output.ToString());
         }
 
         private void Submit_Click(object sender, RoutedEventArgs e)
         {
-            Domain domain2 = new Domain(domainField.Text, usernameField.Text, outputField.Text);
-            Account.Storage.DomainList.Add(domain2);
-            TableView table = Application.Current.Windows.OfType<TableView>().FirstOrDefault();
-            table.RefreshList(domain2);
+            var table = Application.Current.Windows.OfType<TableView>().FirstOrDefault();
+            table?.Modify(new Domain(domainField.Text, usernameField.Text, outputField.Text, DateTime.Now,
+                commentField.Text, (Type) Enum.Parse(typeof(Type), TypeSelector.Text, true)));
             Close();
         }
     }
