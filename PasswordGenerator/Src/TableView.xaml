@@ -19,18 +19,42 @@
                 <MenuItem Header="_Logout" Click="LogOut_Click"/>
                 <MenuItem Header="_Exit" Click="Shutdown_Click"/>
             </MenuItem>
+            <MenuItem Header="_Edit">
+            </MenuItem>
+            <MenuItem Header="_View">
+            </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="_About" Click="About_Click"/>
             </MenuItem>
         </Menu>
-        <ListView Margin="165,85,36,36" Name="listTable">
+        <ListView Margin="165,85,36,36" Name="listTable" >
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Domain" Width="120" DisplayMemberBinding="{Binding Address}" />
-                    <GridViewColumn Header="Username" Width="120" DisplayMemberBinding="{Binding Login}" />
-                    <GridViewColumn Header="Password" Width="120" DisplayMemberBinding="{Binding Password}" />
-                    <GridViewColumn Header="Last Updated" Width="120" DisplayMemberBinding="{Binding TimeUpdated}" />
-                    <GridViewColumn Header="Comment" Width="120" DisplayMemberBinding="{Binding Comment}" />
+                    <GridViewColumn Width="120" DisplayMemberBinding="{Binding Address}">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Tag="Address" Click="ColumnHeader_Click">Domain</GridViewColumnHeader>
+                        </GridViewColumn.Header>
+                        </GridViewColumn>
+                    <GridViewColumn Width="120" DisplayMemberBinding="{Binding Login}">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Tag="Login" Click="ColumnHeader_Click">Login</GridViewColumnHeader>
+                        </GridViewColumn.Header>
+                    </GridViewColumn>
+                    <GridViewColumn Width="120" DisplayMemberBinding="{Binding Password}">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Tag="Password" Click="ColumnHeader_Click">Password</GridViewColumnHeader>
+                        </GridViewColumn.Header>
+                    </GridViewColumn>
+                    <GridViewColumn Width="120" DisplayMemberBinding="{Binding TimeUpdated}">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Tag="TimeUpdated" Click="ColumnHeader_Click">Last Updated</GridViewColumnHeader>
+                        </GridViewColumn.Header>
+                    </GridViewColumn>
+                    <GridViewColumn Width="120" DisplayMemberBinding="{Binding Comment}">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Tag="Comment" Click="ColumnHeader_Click">Comment</GridViewColumnHeader>
+                        </GridViewColumn.Header>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
