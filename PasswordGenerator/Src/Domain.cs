@@ -21,9 +21,9 @@ namespace PasswordGenerator.Src
     [Serializable]
     public class Domain
     {
-        private string address, login, password, comment;
-        private DateTime timeUpdated;
-        private Type type;
+        private string _address, _login, _password, _comment;
+        private DateTime _timeUpdated;
+        private Type _type;
 
         public Domain(string address, string login, string password, DateTime timeUpdated, string comment, Type type)
         {
@@ -35,11 +35,40 @@ namespace PasswordGenerator.Src
             Type = type;
         }
 
-        public string Address { get => address; set => address = value; }
-        public string Login { get => login; set => login = value; }
-        public string Password { get => password; set => password = value; }
-        public string Comment { get => comment; set => comment = value; }
-        public DateTime TimeUpdated { get => timeUpdated; set => timeUpdated = value; }
-        public Type Type { get => type; set => type = value; }
+        public string Address
+        {
+            get => _address;
+            set => _address = value;
+        }
+
+        public string Login
+        {
+            get => _login;
+            set => _login = value;
+        }
+
+        public string Password
+        {
+            get => _password;
+            set => _password = value;
+        }
+
+        public string Comment
+        {
+            get => _comment;
+            set => _comment = value;
+        }
+
+        public DateTime TimeUpdated
+        {
+            get => _timeUpdated;
+            set => _timeUpdated = value;
+        }
+
+        public Type Type
+        {
+            get => _type;
+            set => _type = value;
+        }
     }
 }

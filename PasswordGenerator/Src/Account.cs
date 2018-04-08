@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
+using System.Windows;
 
 namespace PasswordGenerator.Src
 {
@@ -42,6 +43,11 @@ namespace PasswordGenerator.Src
             WorkingPath = previousPath;
         }
 
+        public string ReturnPrint()
+        {
+            return currentPassword;
+        }
+
         public static bool Save()
         {
             try
@@ -61,7 +67,6 @@ namespace PasswordGenerator.Src
                         formatter.Serialize(cryptoStream, map);
                     }
                 }
-                //CurrentFile.Attributes |= FileAttributes.Hidden;
                 return true;
             }
             catch(Exception e)
@@ -78,11 +83,10 @@ namespace PasswordGenerator.Src
             currentPassword = key;
         }
 
-        public static int Load(string password)
+        public static bool Load(string password)
         {
             try
             {
-                //CurrentFile.Attributes &= ~FileAttributes.Hidden;
                 Dictionary<string, Account> ret;
                 var salt = new byte[SaltSize];
                 using (Stream fs = new FileStream(WorkingPath, FileMode.Open, FileAccess.Read))
@@ -97,7 +101,8 @@ namespace PasswordGenerator.Src
 
                         if (fs.Length.Equals(0))
                         {
-                            return 0;
+                            MessageBox.Show("Nothing to decrypt", "Data error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return false;
                         }
 
                         BinaryFormatter binaryFormatter = new BinaryFormatter();
@@ -107,17 +112,27 @@ namespace PasswordGenerator.Src
 
                 currentPassword = password;
                 map = ret;
-                return 1;
+                MessageBox.Show("Data successfully loaded", "Data loaded", MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return true;
             }
             catch (SerializationException ex)
             {
                 Console.WriteLine(ex.InnerException);
-                return -1;
+                MessageBox.Show("Unable to decrypt this file", "Input Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
             }
             catch (FileNotFoundException ex)
             {
                 Console.WriteLine(ex.InnerException);
-                return -2;
+                MessageBox.Show("Nothing to decrypt", "Data error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+            catch (CryptographicException ex)
+            {
+                Console.WriteLine(ex.InnerException);
+                MessageBox.Show("Incorrect key", "Data error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
             }
         }
 

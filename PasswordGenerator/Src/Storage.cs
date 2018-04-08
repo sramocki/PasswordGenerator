@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace PasswordGenerator.Src
 {
     [Serializable]
     public class Storage
     {
-        public List<Domain> DomainList { get; set; }
+        public ObservableCollection<Domain> DomainList { get; set; }
 
         public Storage()
         {
-            DomainList = new List<Domain>();
+            DomainList = new ObservableCollection<Domain>();
         }
     }
 }

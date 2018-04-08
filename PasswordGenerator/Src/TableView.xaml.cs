@@ -1,27 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using System.Windows.Xps.Packaging;
 
 namespace PasswordGenerator.Src
 {
     public partial class TableView : Window
     {
         public Account Account { get; set; }
-        private GridViewColumnHeader listViewSortCol = null;
-        private SortAdorner listViewSortAdorner = null;
+        private ListSortDirection _sortDirection;
+        private GridViewColumnHeader _sortColumn;
+        private string[] _currentItem;
 
         public TableView()
         {
@@ -32,29 +25,26 @@ namespace PasswordGenerator.Src
 
         private void Shutdown_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxButton buttons = MessageBoxButton.YesNo;
-            MessageBoxImage icon = MessageBoxImage.Question;
-            if (MessageBox.Show("Do you want to close this program", "Confirmation", buttons, icon) == MessageBoxResult.Yes)
+            const MessageBoxButton buttons = MessageBoxButton.YesNo;
+            const MessageBoxImage icon = MessageBoxImage.Question;
+            if (MessageBox.Show("Save before closing?", "Confirmation", buttons, icon) == MessageBoxResult.Yes)
+            {
+                Account.Save();
+                Application.Current.Shutdown();
+            }
+            else
             {
                 Application.Current.Shutdown();
             }
+                
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
-
-            if (File.Exists(Account.WorkingPath))
-            {
-                //Account.CurrentFile.Attributes |= FileAttributes.Hidden;
-            }
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            if (File.Exists(Account.WorkingPath))
-            {
-                //Account.CurrentFile.Attributes |= FileAttributes.Hidden;
-            }
+            var result = MessageBox.Show("Save before closing?", "Error", MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes) Account.Save();
+            else Application.Current.Shutdown();
         }
 
         private void About_Click(object sender, RoutedEventArgs e)
@@ -64,58 +54,40 @@ namespace PasswordGenerator.Src
 
         private void GenerateView_Click(object sender, RoutedEventArgs e)
         {
-            Generator generator = new Generator();
+            var generator = new Generator {TimeUpdatedField = {Text = DateTime.Now.ToShortTimeString()}};
             generator.ShowDialog();
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            bool temp = Account.Save();
+            var temp = Account.Save();
             if (temp)
-            {
                 MessageBox.Show("Data saved", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-            }
             else
-            {
                 MessageBox.Show("Could not save data", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-
-            }
-        }
-
-        private void LogOut_Click(object sender, RoutedEventArgs e)
-        {
-            //todo logout
         }
 
         private void ExportData_Click(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.FileName = "data";
-            dlg.DefaultExt = ".ramocki";
-            dlg.Filter = "Stored data (.ramocki)|*.ramocki";
-            bool? result = dlg.ShowDialog();
-
-            // Process save file dialog box results
-            if (result == true)
+            var dlg = new Microsoft.Win32.SaveFileDialog
             {
-                Account.WorkingPath = dlg.FileName;
-                bool temp = Account.Save();
-                if (temp)
-                {
-                    MessageBox.Show("Data saved", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                FileName = "data",
+                DefaultExt = ".ramocki",
+                Filter = "Stored data (.ramocki)|*.ramocki"
+            };
+            var result = dlg.ShowDialog();
 
-                }
-                else
-                {
-                    MessageBox.Show("Could not save data", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            if (result != true) return;
+            Account.WorkingPath = dlg.FileName;
+            var temp = Account.Save();
+            if (temp)
+                MessageBox.Show("Data saved", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            else
+                MessageBox.Show("Could not save data", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
-                }
-
-                Account.ResetPathPrevious();
-            }
+            Account.ResetPathPrevious();
         }
-        
+
         public void RefreshList()
         {
             listTable.ItemsSource = null;
@@ -130,22 +102,29 @@ namespace PasswordGenerator.Src
 
         public void PrintData_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.Controls.PrintDialog dlg = new System.Windows.Controls.PrintDialog();
-            dlg.PageRangeSelection = PageRangeSelection.AllPages;
-            dlg.UserPageRangeEnabled = true;
-
-            // Show save file dialog box
-            Nullable<bool> result = dlg.ShowDialog();
-
-            // Process save file dialog box results
-            if (result == true)
+            var pDialog = new PrintDialog
             {
-                // Print document
-            }
+                PageRangeSelection = PageRangeSelection.AllPages,
+                UserPageRangeEnabled = true
+            };
+            var print = pDialog.ShowDialog();
 
+            if (print != true) return;
+            try
+            {
+                var xpsDocument = new XpsDocument("C:\\FixedDocumentSequence.xps", FileAccess.ReadWrite);
+                var fixedDocSeq = xpsDocument.GetFixedDocumentSequence();
+                if (fixedDocSeq != null)
+                    pDialog.PrintDocument(fixedDocSeq.DocumentPaginator,
+                        "Encryption key: " + Account.ReturnPrint());
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
 
-        private void SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void FilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             listTable.ItemsSource = null;
             switch ((FilterList.SelectedItem as ListViewItem)?.Content.ToString())
@@ -154,90 +133,117 @@ namespace PasswordGenerator.Src
                     listTable.ItemsSource = Account.Storage.DomainList;
                     break;
                 case "Bank":
-                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Bank).ToList();
+                    listTable.ItemsSource =
+                        Account.Storage.DomainList.Where(domain => domain.Type == Type.Bank).ToList();
                     break;
                 case "Game":
-                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Game).ToList();
+                    listTable.ItemsSource =
+                        Account.Storage.DomainList.Where(domain => domain.Type == Type.Game).ToList();
                     break;
                 case "General":
-                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.General).ToList();
+                    listTable.ItemsSource =
+                        Account.Storage.DomainList.Where(domain => domain.Type == Type.General).ToList();
                     break;
                 case "Forum":
-                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Forum).ToList();
+                    listTable.ItemsSource =
+                        Account.Storage.DomainList.Where(domain => domain.Type == Type.Forum).ToList();
                     break;
                 case "School":
-                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.School).ToList();
+                    listTable.ItemsSource =
+                        Account.Storage.DomainList.Where(domain => domain.Type == Type.School).ToList();
                     break;
                 case "Shopping":
-                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Shopping).ToList();
+                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Shopping)
+                        .ToList();
                     break;
                 case "Work":
-                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Work).ToList();
+                    listTable.ItemsSource =
+                        Account.Storage.DomainList.Where(domain => domain.Type == Type.Work).ToList();
                     break;
                 default:
-                    Console.WriteLine("Something went wrong here...");
                     break;
             }
         }
 
-        private void ColumnHeader_Click(object sender, RoutedEventArgs e)
+        private void Remove_Click(object sender, RoutedEventArgs e)
         {
-            GridViewColumnHeader column = (sender as GridViewColumnHeader);
-            string sortBy = column.Tag.ToString();
-            if (listViewSortCol != null)
-            {
-                AdornerLayer.GetAdornerLayer(listViewSortCol).Remove(listViewSortAdorner);
-                listTable.Items.SortDescriptions.Clear();
-            }
-
-            ListSortDirection newDir = ListSortDirection.Ascending;
-            if (listViewSortCol == column && listViewSortAdorner.Direction == newDir)
-                newDir = ListSortDirection.Descending;
-
-            listViewSortCol = column;
-            listViewSortAdorner = new SortAdorner(listViewSortCol, newDir);
-            AdornerLayer.GetAdornerLayer(listViewSortCol).Add(listViewSortAdorner);
-            listTable.Items.SortDescriptions.Add(new SortDescription(sortBy, newDir));
+            IEditableCollectionView items = listTable.Items;
+            if (items.CanRemove) items.Remove(listTable.SelectedItem);
+            _currentItem = null;
         }
 
-        public class SortAdorner : Adorner
+        private void Add_Click(object sender, RoutedEventArgs e)
         {
-            private static Geometry ascGeometry =
-                Geometry.Parse("M 0 4 L 3.5 0 L 7 4 Z");
-
-            private static Geometry descGeometry =
-                Geometry.Parse("M 0 0 L 3.5 4 L 7 0 Z");
-
-            public ListSortDirection Direction { get; private set; }
-
-            public SortAdorner(UIElement element, ListSortDirection dir)
-                : base(element)
-            {
-                this.Direction = dir;
-            }
-
-            protected override void OnRender(DrawingContext drawingContext)
-            {
-                base.OnRender(drawingContext);
-
-                if (AdornedElement.RenderSize.Width < 20)
-                    return;
-
-                TranslateTransform transform = new TranslateTransform
-                (
-                    AdornedElement.RenderSize.Width - 15,
-                    (AdornedElement.RenderSize.Height - 5) / 2
-                );
-                drawingContext.PushTransform(transform);
-
-                Geometry geometry = ascGeometry;
-                if (this.Direction == ListSortDirection.Descending)
-                    geometry = descGeometry;
-                drawingContext.DrawGeometry(Brushes.Black, null, geometry);
-
-                drawingContext.Pop();
-            }
+            var generator = new Generator {TimeUpdatedField = {Text = DateTime.Now.ToShortTimeString()}};
+            generator.ShowDialog();
         }
 
+        private void Update_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentItem == null) return;
+            IEditableCollectionView items = listTable.Items;
+            if (items.CanRemove) items.Remove(listTable.SelectedItem);
+            var generator = new Generator
+            {
+                DomainField = {Text = _currentItem[0]},
+                UsernameField = {Text = _currentItem[1]},
+                OutputField = {Text = _currentItem[2]},
+                TimeUpdatedField = { Text = _currentItem[3] },
+                CommentField = {Text = _currentItem[4]}
+            };
+            generator.ShowDialog();
+            _currentItem = null;
+
+        }
+
+        private void ChangedSelection(object sender, SelectionChangedEventArgs e)
+        {
+            dynamic selectedItem = (Domain) listTable.SelectedItem;
+            if (selectedItem == null) return;
+            _currentItem = new string[5];
+            _currentItem[0] = selectedItem.Address;
+            _currentItem[1] = selectedItem.Login;
+            _currentItem[2] = selectedItem.Password;
+            _currentItem[3] = selectedItem.TimeUpdated.ToString();
+            _currentItem[4] = selectedItem.Comment;
+        }
+
+        private void SortColumnClick(object sender, RoutedEventArgs e)
+        {
+            if (!(e.OriginalSource is GridViewColumnHeader column)) return;
+
+            if (Equals(_sortColumn, column))
+            {
+                _sortDirection = _sortDirection == ListSortDirection.Ascending
+                    ? ListSortDirection.Descending
+                    : ListSortDirection.Ascending;
+            }
+            else
+            {
+                if (_sortColumn != null)
+                {
+                    _sortColumn.Column.HeaderTemplate = null;
+                    _sortColumn.Column.Width = _sortColumn.ActualWidth - 20;
+                }
+
+                _sortColumn = column;
+                _sortDirection = ListSortDirection.Ascending;
+                column.Column.Width = column.ActualWidth + 20;
+            }
+
+            if (_sortDirection == ListSortDirection.Ascending)
+                column.Column.HeaderTemplate = Resources["ArrowUp"] as DataTemplate;
+            else
+                column.Column.HeaderTemplate = Resources["ArrowDown"] as DataTemplate;
+
+            var header = string.Empty;
+            if (_sortColumn.Column.DisplayMemberBinding is Binding b) header = b.Path.Path;
+
+            var resultDataView = CollectionViewSource.GetDefaultView(
+                listTable.ItemsSource);
+            resultDataView.SortDescriptions.Clear();
+            resultDataView.SortDescriptions.Add(
+                new SortDescription(header, _sortDirection));
+        }
     }
 }

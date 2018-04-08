@@ -1,7 +1,10 @@
 ﻿<Application x:Class="PasswordGenerator.Src.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Startup="Application_Startup"
              StartupUri="\Src\LoginWindow.xaml">
+    
+
     <Application.Resources>
          
     </Application.Resources>

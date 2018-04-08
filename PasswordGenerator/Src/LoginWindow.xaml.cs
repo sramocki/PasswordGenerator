@@ -9,103 +9,106 @@ namespace PasswordGenerator.Src
     public partial class LoginWindow : Window
     {
         public Account Account { get; set; }
+
         public LoginWindow()
         {
             InitializeComponent();
-            WelcomeText.Text = "Welcome "+ Environment.UserName.ToUpper();
-            if (File.Exists(Account.WorkingPath))
-            {
-                MessageBox.Show("Data detected, please decrypt", "Data found", MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-            }
-            else
-            {
-                MessageBoxResult result = MessageBox.Show("No data found, would you like to create a new key?",
-                    "No data found", MessageBoxButton.YesNo, MessageBoxImage.Error);
-                if (result == MessageBoxResult.Yes)
-                {
-                    KeyCreate_Click(null, null);
-                }
-            }
+            Title = "Welcome " + Environment.UserName.ToUpper();
+            var exists =
+                Directory.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    @"Ramocki\"));
+
+            if (!exists)
+                Directory.CreateDirectory(
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Ramocki\"));
+
+            if (File.Exists(Account.WorkingPath)) return;
+            var result = MessageBox.Show("No data found, would you like to create a new key?",
+                "No data found", MessageBoxButton.YesNo, MessageBoxImage.Error);
+            if (result == MessageBoxResult.Yes) KeyCreate_Click(null, null);
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void DecryptionByKey_Key(object sender, KeyEventArgs e)
         {
-            
-            if (File.Exists(Account.WorkingPath))
-            {
-                //Account.CurrentFile.Attributes |= FileAttributes.Hidden;
-            }
+            if (e.Key != Key.Return && e.Key != Key.Enter) return;
+            if (!Account.Load(KeyField.Text)) return;
+            var table = new TableView();
+            table.Show();
+            Close();
         }
 
-        private void Window_Closed(object sender, EventArgs e)
+        private void DecryptionByKey_Click(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(Account.WorkingPath))
-            {
-                //Account.CurrentFile.Attributes |= FileAttributes.Hidden;
-            }
-        }
-
-        private void DecryptionByKey(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Return || e.Key == Key.Enter)
-            {
-                if (Account.Load(KeyField.Text) == 1)
-                {
-                    MessageBox.Show("Data successfully loaded", "Data loaded", MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-                    TableView table = new TableView();
-                    table.Show();
-                    Close();
-                }
-                else if (Account.Load(KeyField.Text) == -1)
-                {
-                    MessageBox.Show("Incorrect key", "Input Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                else
-                {
-                    MessageBox.Show("No data found", "Data error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            if (!Account.Load(KeyField.Text)) return;
+            var table = new TableView();
+            table.Show();
+            Close();
         }
 
         private void KeyCreate_Click(object sender, RoutedEventArgs e)
         {
             if (File.Exists(Account.WorkingPath))
             {
-                MessageBox.Show("Data detected, please delete/move it before generating a new key", "Data found",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                var result = MessageBox.Show(
+                    "Local data already exists\n Backup data?", "Data Conflict",
+                    MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    File.Move(Account.WorkingPath, Account.WorkingPath + "_backup" + string.Format(DateTime.Now.Ticks.ToString()));
+                }
             }
             else
             {
-                MessageBoxResult result = MessageBox.Show("Would you like to generate a USB key?",
+                var result = MessageBox.Show("Would you like to generate a USB key?",
                     "Prompt", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (result == MessageBoxResult.Yes)
+                string key;
+                using (var rijndael = System.Security.Cryptography.Rijndael.Create())
                 {
-                    var drives = DriveInfo.GetDrives()
-                        .Where(drive => drive.IsReady && drive.DriveType == DriveType.Removable);
-                    var driveInfos = drives.ToList();
-                    if (driveInfos.Count == 1)
-                    {
-                        string path = driveInfos[0] + "key.ramocki";
-                        if(File.Exists(path))
+                    rijndael.GenerateKey();
+                    key = Convert.ToBase64String(rijndael.Key);
+                }
+
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        var drives = DriveInfo.GetDrives()
+                            .Where(drive => drive.IsReady && drive.DriveType == DriveType.Removable);
+                        var driveInfos = drives.ToList();
+                        if (driveInfos.Count == 1)
                         {
-                            MessageBoxResult resultz = MessageBox.Show("Key already found on this USB, would you like to override it?", "Error", MessageBoxButton.YesNo, MessageBoxImage.Error);
-                            if (resultz == MessageBoxResult.Yes)
+                            var path = driveInfos[0] + "key.ramocki";
+                            if (File.Exists(path))
                             {
-                                try
-                                {
-                                    using (var rijndael = System.Security.Cryptography.Rijndael.Create())
+                                var resultz = MessageBox.Show(
+                                    "Key already found on this USB, would you like to override it?", "Error",
+                                    MessageBoxButton.YesNo, MessageBoxImage.Error);
+                                if (resultz == MessageBoxResult.Yes)
+                                    try
                                     {
-                                        rijndael.GenerateKey();
-                                        var key = Convert.ToBase64String(rijndael.Key);
                                         Account.CreateAccount(key);
                                         Account.Save();
                                         Clipboard.SetText(key);
-                                        MessageBox.Show("Key added to " + driveInfos[0] + "\n\n" + key, "Key Generated", MessageBoxButton.OK,
+                                        MessageBox.Show("Key added to " + driveInfos[0] + "\n\n" + key, "Key Generated",
+                                            MessageBoxButton.OK,
                                             MessageBoxImage.None);
                                         File.WriteAllText(path, key);
                                     }
+                                    catch (Exception exception)
+                                    {
+                                        Console.WriteLine(exception);
+                                    }
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    Account.CreateAccount(key);
+                                    Account.Save();
+                                    Clipboard.SetText(key);
+                                    MessageBox.Show("Key added to " + driveInfos[0] + "\n\n" + key, "Key Generated",
+                                        MessageBoxButton.OK,
+                                        MessageBoxImage.None);
+                                    File.WriteAllText(path, key);
                                 }
                                 catch (Exception exception)
                                 {
@@ -114,63 +117,43 @@ namespace PasswordGenerator.Src
                                 }
                             }
                         }
+                        else if (driveInfos.Count > 1)
+                        {
+                            MessageBox.Show("Multiple USB devices found", "Error", MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                        }
                         else
                         {
-                            try
-                            {
-                                using (var rijndael = System.Security.Cryptography.Rijndael.Create())
-                                {
-                                    rijndael.GenerateKey();
-                                    var key = Convert.ToBase64String(rijndael.Key);
-                                    Account.CreateAccount(key);
-                                    Account.Save();
-                                    Clipboard.SetText(key);
-                                    MessageBox.Show("Key added to " + driveInfos[0] + "\n\n" + key, "Key Generated", MessageBoxButton.OK,
-                                        MessageBoxImage.None);
-                                    File.WriteAllText(path, key);
-                                }
-                            }
-                            catch (Exception exception)
-                            {
-                                Console.WriteLine(exception);
-                                throw;
-                            }
-
+                            MessageBox.Show("No USB device found", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
-                    }
-                    else if (driveInfos.Count > 1)
-                    {
-                        MessageBox.Show("Multiple USB devices found", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    else
-                    {
-                        MessageBox.Show("No USB device found", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-                else if (result == MessageBoxResult.No)
-                {
-                    using (var rijndael = System.Security.Cryptography.Rijndael.Create())
-                    {
-                        rijndael.GenerateKey();
-                        var key = Convert.ToBase64String(rijndael.Key);
+
+                        break;
+                    case MessageBoxResult.No:
                         Account.CreateAccount(key);
                         Account.Save();
                         Clipboard.SetText(key);
-                        MessageBox.Show("Key: " + key, "Key Generated", MessageBoxButton.OK, MessageBoxImage.None);
-                    }
+
+                        break;
+                    case MessageBoxResult.None:
+                        break;
+                    case MessageBoxResult.OK:
+                        break;
+                    case MessageBoxResult.Cancel:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
         }
 
         private void Shutdown_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxButton buttons = MessageBoxButton.YesNo;
-            MessageBoxImage icon = MessageBoxImage.Question;
+            const MessageBoxButton buttons = MessageBoxButton.YesNo;
+            MessageBoxImage icon;
+            icon = MessageBoxImage.Question;
             if (MessageBox.Show("Do you want to close this program", "Confirmation", buttons, icon) ==
                 MessageBoxResult.Yes)
-            {
                 Application.Current.Shutdown();
-            }
         }
 
         private void About_Click(object sender, RoutedEventArgs e)
@@ -180,16 +163,16 @@ namespace PasswordGenerator.Src
 
         private void ImportData_Click(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.FileName = "data";
-            dlg.DefaultExt = ".ramocki";
-            dlg.Filter = "Stored data (.ramocki)|*.ramocki";
-            bool? result = dlg.ShowDialog();
-            if (result == true)
+            var dlg = new Microsoft.Win32.OpenFileDialog
             {
-                Account.WorkingPath = dlg.FileName;
-                Account.CurrentFile = new FileInfo(Account.WorkingPath);
-            }
+                FileName = "data",
+                DefaultExt = ".ramocki",
+                Filter = "Stored data (.ramocki)|*.ramocki"
+            };
+            var result = dlg.ShowDialog();
+            if (result != true) return;
+            Account.WorkingPath = dlg.FileName;
+            Account.CurrentFile = new FileInfo(Account.WorkingPath);
         }
 
         public void YourGotFocusEvent(object sender, RoutedEventArgs e)
@@ -205,45 +188,14 @@ namespace PasswordGenerator.Src
             var driveInfos = drives.ToList();
             if (driveInfos.Count == 1)
             {
-                string path = driveInfos[0] + "key.ramocki";
+                var path = driveInfos[0] + "key.ramocki";
+
                 if (File.Exists(path))
                 {
-                    try
-                    {
-                        string contents = File.ReadAllText(path);
-                        if (!contents.Equals(""))
-                        {
-                            if (Account.Load(contents) == 1)
-                            {
-                                MessageBox.Show("Data successfully loaded", "Data loaded", MessageBoxButton.OK,
-                                    MessageBoxImage.Information);
-                                TableView table = new TableView();
-                                table.Show();
-                                Close();
-                            }
-                            else if (Account.Load(contents) == -1)
-                            {
-                                MessageBox.Show("Incorrect key", "Input Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            }
-                            else if(Account.Load(contents) == -2)
-                            {
-                                MessageBox.Show("Nothing to decrypt", "Data error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            }
-                            else
-                            {
-                                MessageBox.Show("Unknown error", "Data error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            }
-                        }
-                        else
-                        {
-                            MessageBox.Show("This file is blank!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.InnerException);
-                        MessageBox.Show("This file is corrupt!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
+                    if (!Account.Load(File.ReadAllText(path))) return;
+                    var table = new TableView();
+                    table.Show();
+                    Close();
                 }
                 else
                 {

@@ -6,30 +6,33 @@
         xmlns:local="clr-namespace:PasswordGenerator.Src"
         ResizeMode="CanMinimize"
         mc:Ignorable="d"
-        Closing="Window_Closing" 
-        Closed="Window_Closed"
-        Title="Password Generator" Height="400" Width="400" WindowStartupLocation="CenterScreen">
-    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock Name="WelcomeText" HorizontalAlignment="Center" Margin="22,65,10,274" TextWrapping="Wrap" Text="Welcome" VerticalAlignment="Center" FontSize="24" TextDecorations="{x:Null}" FontWeight="Bold"/>
-        <TextBox Name="KeyField" HorizontalAlignment="Left" KeyDown="DecryptionByKey" Height="21" Margin="20,234,0,0" TextWrapping="Wrap" Text="Enter decryption key here" VerticalAlignment="Top" Width="360" GotFocus="YourGotFocusEvent" TextAlignment="Center">
+        Title="Password Generator" Height="206" Width="400" WindowStartupLocation="CenterScreen">
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Height="181" Margin="1,0,-5,-4" Width="398">
+        <TextBox Name="KeyField" HorizontalAlignment="Left" KeyDown="DecryptionByKey_Key" Height="21"
+                 Margin="15,79,0,0" TextWrapping="Wrap" Text="Enter decryption key here" VerticalAlignment="Top"
+                 Width="360" GotFocus="YourGotFocusEvent" TextAlignment="Center" FontSize="14" Background="White">
             <TextBox.InputBindings>
                 <KeyBinding Command="{Binding TestMethod}" Key="Return" />
                 <KeyBinding Command="{Binding TestMethod}" Key="Enter" />
             </TextBox.InputBindings>
         </TextBox>
-        <Menu HorizontalAlignment="Left" Margin="0,0,0,339" Width="392">
+        <Menu HorizontalAlignment="Left" Margin="0,5,0,156" Width="395">
             <MenuItem Header="_File">
-                <MenuItem Header="_Create new Encryption Key" Click="KeyCreate_Click"/>
-                <MenuItem Header="_Import Data" Click="ImportData_Click"/>
-                <MenuItem Header="_Export Data" IsEnabled="False" />
-                <MenuItem Header="_Exit" Click="Shutdown_Click"/>
+                <MenuItem Header="_New Encryption Key" Click="KeyCreate_Click" />
+                <MenuItem Header="_Unlock with USB" Click="USBRead_Click" />
+                <MenuItem Header="_Import Data" Click="ImportData_Click" />
+                <MenuItem Header="_Exit" Click="Shutdown_Click" />
             </MenuItem>
             <MenuItem Header="_Help">
-                <MenuItem Header="_About" Click="About_Click"/>
+                <MenuItem Header="_About" Click="About_Click" />
             </MenuItem>
         </Menu>
-        <Button Content="Decrypt from USB device" HorizontalAlignment="Left" Click="USBRead_Click" Margin="125,140,0,0" VerticalAlignment="Top" Width="140"/>
-        <TextBlock HorizontalAlignment="Left" Margin="195,189,0,0" TextWrapping="Wrap" Text="OR" VerticalAlignment="Top" RenderTransformOrigin="-1.154,1.875"/>
+        <Button Content="Submit" Click="DecryptionByKey_Click" HorizontalAlignment="Left" Margin="160,114,0,0"
+                VerticalAlignment="Top" Width="80" />
+        <Label Content="Login" HorizontalAlignment="Left" Margin="175,31,0,0" VerticalAlignment="Top"
+               RenderTransformOrigin="-0.132,0" Width="45" FontSize="14" />
+        <Button Content="Unlock with USB" Click="USBRead_Click" HorizontalAlignment="Left" Margin="154,145,0,0"
+                VerticalAlignment="Top" Width="92" />
 
     </Grid>
 
