@@ -16,6 +16,3 @@ Known issues:
 * Closing the update page for a password without hitting submit will reset the password type
 * Deleting the local data while running will crash the program
   
-Coming soon:
-* Right click on password copies to clipboard
-  
