@@ -1,7 +1,7 @@
 # RamoKey
 Windows Password Generator and Storage
-Created by Sean Ramocki
-Icon by Jeffrey Lemmons
+* Created by Sean Ramocki
+* Icon by Jeffrey Lemmons
 
 Features:
 * Password generation:
