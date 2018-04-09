@@ -1,4 +1,4 @@
-# PasswordGenerator
+# RamoKey
 Windows Password Generator and Storage
 
 Features:
