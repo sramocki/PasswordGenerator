@@ -7,7 +7,7 @@
         ResizeMode="CanMinimize"
         mc:Ignorable="d"
         Closing="Window_Closing"
-        Title="Password Generator" Height="446" Width="908" WindowStartupLocation="CenterScreen">
+        Title="RamoKey Password Generator" Height="446" Width="908" WindowStartupLocation="CenterScreen">
     <Grid>
         <Menu HorizontalAlignment="Left" Margin="0,0,0,385" Width="902">
             <MenuItem Header="_File">
