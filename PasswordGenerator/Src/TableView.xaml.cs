@@ -178,6 +178,13 @@ namespace PasswordGenerator.Src
             generator.ShowDialog();
         }
 
+        private void Copy_Click(object sender, RoutedEventArgs e)
+        {
+            dynamic selectedItem = (Domain)listTable.SelectedItem;
+            if (selectedItem == null) return;
+            Clipboard.SetText(selectedItem.Password);
+        }
+
         private void Update_Click(object sender, RoutedEventArgs e)
         {
             if (_currentItem == null) return;
