@@ -22,7 +22,7 @@ namespace PasswordGenerator.Src
                 Directory.CreateDirectory(
                     Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Ramocki\"));
 
-            if (File.Exists(Account.WorkingPath)) return;
+            if (File.Exists(Utility.WorkingPath)) return;
             var result = MessageBox.Show("No data found, would you like to create a new key?",
                 "No data found", MessageBoxButton.YesNo, MessageBoxImage.Error);
             if (result == MessageBoxResult.Yes) KeyCreate_Click(null, null);
@@ -31,7 +31,7 @@ namespace PasswordGenerator.Src
         private void DecryptionByKey_Key(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Return && e.Key != Key.Enter) return;
-            if (!Account.Load(KeyField.Text)) return;
+            if (!Utility.Load(KeyField.Text)) return;
             var table = new TableView();
             table.Show();
             Close();
@@ -39,22 +39,27 @@ namespace PasswordGenerator.Src
 
         private void DecryptionByKey_Click(object sender, RoutedEventArgs e)
         {
-            if (!Account.Load(KeyField.Text)) return;
+            if (!Utility.Load(KeyField.Text)) return;
             var table = new TableView();
             table.Show();
             Close();
         }
 
+        private void USBKeyCreate_Click(object sender, RoutedEventArgs e)
+        {
+            //todo move usb creation here
+        }
+
         private void KeyCreate_Click(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(Account.WorkingPath))
+            if (File.Exists(Utility.WorkingPath))
             {
                 var result = MessageBox.Show(
                     "Local data already exists\n Backup data?", "Data Conflict",
                     MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (result == MessageBoxResult.Yes)
                 {
-                    File.Move(Account.WorkingPath, Account.WorkingPath + "_backup" + string.Format(DateTime.Now.Ticks.ToString()));
+                    File.Move(Utility.WorkingPath, Utility.WorkingPath + "_backup" + string.Format(DateTime.Now.Ticks.ToString()));
                 }
             }
             else
@@ -85,8 +90,8 @@ namespace PasswordGenerator.Src
                                 if (resultz == MessageBoxResult.Yes)
                                     try
                                     {
-                                        Account.CreateAccount(key);
-                                        Account.Save();
+                                        Utility.CreateAccount(key);
+                                        Utility.Save();
                                         Clipboard.SetText(key);
                                         MessageBox.Show("Key added to " + driveInfos[0] + "\n\n" + key, "Key Generated",
                                             MessageBoxButton.OK,
@@ -102,8 +107,8 @@ namespace PasswordGenerator.Src
                             {
                                 try
                                 {
-                                    Account.CreateAccount(key);
-                                    Account.Save();
+                                    Utility.CreateAccount(key);
+                                    Utility.Save();
                                     Clipboard.SetText(key);
                                     MessageBox.Show("Key added to " + driveInfos[0] + "\n\n" + key, "Key Generated",
                                         MessageBoxButton.OK,
@@ -129,8 +134,8 @@ namespace PasswordGenerator.Src
 
                         break;
                     case MessageBoxResult.No:
-                        Account.CreateAccount(key);
-                        Account.Save();
+                        Utility.CreateAccount(key);
+                        Utility.Save();
                         Clipboard.SetText(key);
 
                         break;
@@ -171,8 +176,8 @@ namespace PasswordGenerator.Src
             };
             var result = dlg.ShowDialog();
             if (result != true) return;
-            Account.WorkingPath = dlg.FileName;
-            Account.CurrentFile = new FileInfo(Account.WorkingPath);
+            Utility.WorkingPath = dlg.FileName;
+            Utility.CurrentFile = new FileInfo(Utility.WorkingPath);
         }
 
         public void YourGotFocusEvent(object sender, RoutedEventArgs e)
@@ -192,7 +197,7 @@ namespace PasswordGenerator.Src
 
                 if (File.Exists(path))
                 {
-                    if (!Account.Load(File.ReadAllText(path))) return;
+                    if (!Utility.Load(File.ReadAllText(path))) return;
                     var table = new TableView();
                     table.Show();
                     Close();

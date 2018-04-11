@@ -18,7 +18,7 @@ namespace PasswordGenerator.Src
 
         public TableView()
         {
-            Account = Account.GetAccount();
+            Account = Utility.Account;
             InitializeComponent();
             listTable.ItemsSource = Account.Storage.DomainList;
         }
@@ -29,7 +29,7 @@ namespace PasswordGenerator.Src
             const MessageBoxImage icon = MessageBoxImage.Question;
             if (MessageBox.Show("Save before closing?", "Confirmation", buttons, icon) == MessageBoxResult.Yes)
             {
-                Account.Save();
+                Utility.Save();
                 Application.Current.Shutdown();
             }
             else
@@ -43,7 +43,7 @@ namespace PasswordGenerator.Src
         {
             var result = MessageBox.Show("Save before closing?", "Error", MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
-            if (result == MessageBoxResult.Yes) Account.Save();
+            if (result == MessageBoxResult.Yes) Utility.Save();
             else Application.Current.Shutdown();
         }
 
@@ -60,7 +60,7 @@ namespace PasswordGenerator.Src
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            var temp = Account.Save();
+            var temp = Utility.Save();
             if (temp)
                 MessageBox.Show("Data saved", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             else
@@ -78,14 +78,14 @@ namespace PasswordGenerator.Src
             var result = dlg.ShowDialog();
 
             if (result != true) return;
-            Account.WorkingPath = dlg.FileName;
-            var temp = Account.Save();
+            Utility.WorkingPath = dlg.FileName;
+            var temp = Utility.Save();
             if (temp)
                 MessageBox.Show("Data saved", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             else
                 MessageBox.Show("Could not save data", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
-            Account.ResetPathPrevious();
+            Utility.ResetPathPrevious();
         }
 
         public void RefreshList()
@@ -116,7 +116,7 @@ namespace PasswordGenerator.Src
                 var fixedDocSeq = xpsDocument.GetFixedDocumentSequence();
                 if (fixedDocSeq != null)
                     pDialog.PrintDocument(fixedDocSeq.DocumentPaginator,
-                        "Encryption key: " + Account.ReturnPrint());
+                        "Encryption key: " + Utility.ReturnPrint());
             }
             catch (UnauthorizedAccessException ex)
             {

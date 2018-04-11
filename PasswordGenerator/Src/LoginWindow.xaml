@@ -19,6 +19,7 @@
         <Menu HorizontalAlignment="Left" Margin="0,5,0,156" Width="395">
             <MenuItem Header="_File">
                 <MenuItem Header="_New Encryption Key" Click="KeyCreate_Click" />
+                <MenuItem Header="_New USB Encryption Key" Click="USBKeyCreate_Click" />
                 <MenuItem Header="_Unlock with USB" Click="USBRead_Click" />
                 <MenuItem Header="_Import Data" Click="ImportData_Click" />
                 <MenuItem Header="_Exit" Click="Shutdown_Click" />
