@@ -1,5 +1,7 @@
 # RamoKey
 Windows Password Generator and Storage
+* Created by Sean Ramocki
+* Icon by Jeffrey Lemmons
 
 Features:
 * Password generation:
@@ -15,7 +17,6 @@ Features:
 Known issues:
 * Closing the update page for a password without hitting submit will reset the password type
 * Deleting the local data while running will crash the program
-  
+
 Coming soon:
-* Right click on password copies to clipboard
-  
+* Notify of old passwords that need to be updated
