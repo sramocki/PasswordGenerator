@@ -1,10 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Xps.Packaging;
 
 namespace PasswordGenerator.Src
@@ -15,47 +17,66 @@ namespace PasswordGenerator.Src
         private ListSortDirection _sortDirection;
         private GridViewColumnHeader _sortColumn;
         private string[] _currentItem;
+        private bool _modified;
 
         public TableView()
         {
             Account = Utility.Account;
             InitializeComponent();
-            listTable.ItemsSource = Account.Storage.DomainList;
+            ListTable.ItemsSource = Account.Storage.DomainList;
+
+            var saveKeybind = new RoutedCommand();
+            saveKeybind.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
+            CommandBindings.Add(new CommandBinding(saveKeybind, Save_Click));
+
+            var addEventBind = new RoutedCommand();
+            addEventBind.InputGestures.Add(new KeyGesture(Key.N, ModifierKeys.Control));
+            CommandBindings.Add(new CommandBinding(addEventBind, Add_Click));
+
+            var exportBind = new RoutedCommand();
+            exportBind.InputGestures.Add(new KeyGesture(Key.X, ModifierKeys.Control));
+            CommandBindings.Add(new CommandBinding(exportBind, ExportData_Click));
+
+            var printBind = new RoutedCommand();
+            printBind.InputGestures.Add(new KeyGesture(Key.P, ModifierKeys.Control));
+            CommandBindings.Add(new CommandBinding(printBind, PrintData_Click));
         }
 
         private void Shutdown_Click(object sender, RoutedEventArgs e)
         {
-            const MessageBoxButton buttons = MessageBoxButton.YesNo;
-            const MessageBoxImage icon = MessageBoxImage.Question;
-            if (MessageBox.Show("Save before closing?", "Confirmation", buttons, icon) == MessageBoxResult.Yes)
-            {
-                Utility.Save();
+            if (_modified)
+                if (MessageBox.Show("Save before closing?", "Confirmation", MessageBoxButton.YesNo,
+                        MessageBoxImage.Question) == MessageBoxResult.Yes)
+                {
+                    Utility.Save();
+                    Application.Current.Shutdown();
+                }
+                else
+                {
+                    Application.Current.Shutdown();
+                }
+            else
                 Application.Current.Shutdown();
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            if (_modified)
+            {
+                var result = MessageBox.Show("Save before closing?", "Confirmation", MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+                if (result == MessageBoxResult.Yes) Utility.Save();
+                else Application.Current.Shutdown();
             }
             else
             {
                 Application.Current.Shutdown();
             }
-                
-        }
-
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            var result = MessageBox.Show("Save before closing?", "Error", MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-            if (result == MessageBoxResult.Yes) Utility.Save();
-            else Application.Current.Shutdown();
         }
 
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Created by Sean Ramocki", "About");
-        }
-
-        private void GenerateView_Click(object sender, RoutedEventArgs e)
-        {
-            var generator = new Generator {TimeUpdatedField = {Text = DateTime.Now.ToShortTimeString()}};
-            generator.ShowDialog();
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
@@ -81,23 +102,15 @@ namespace PasswordGenerator.Src
             Utility.WorkingPath = dlg.FileName;
             var temp = Utility.Save();
             if (temp)
-                MessageBox.Show("Data saved", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Data exported", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             else
-                MessageBox.Show("Could not save data", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-
-            Utility.ResetPathPrevious();
+                MessageBox.Show("Could not export data", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         public void RefreshList()
         {
-            listTable.ItemsSource = null;
-            listTable.ItemsSource = Account.Storage.DomainList;
-        }
-
-        public void Modify(Domain domain)
-        {
-            Account.Storage.DomainList.Add(domain);
-            RefreshList();
+            ListTable.ItemsSource = null;
+            ListTable.ItemsSource = Account.Storage.DomainList;
         }
 
         public void PrintData_Click(object sender, RoutedEventArgs e)
@@ -126,38 +139,38 @@ namespace PasswordGenerator.Src
 
         private void FilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            listTable.ItemsSource = null;
+            ListTable.ItemsSource = null;
             switch ((FilterList.SelectedItem as ListViewItem)?.Content.ToString())
             {
                 case "All":
-                    listTable.ItemsSource = Account.Storage.DomainList;
+                    ListTable.ItemsSource = Account.Storage.DomainList;
                     break;
                 case "Bank":
-                    listTable.ItemsSource =
+                    ListTable.ItemsSource =
                         Account.Storage.DomainList.Where(domain => domain.Type == Type.Bank).ToList();
                     break;
                 case "Game":
-                    listTable.ItemsSource =
+                    ListTable.ItemsSource =
                         Account.Storage.DomainList.Where(domain => domain.Type == Type.Game).ToList();
                     break;
                 case "General":
-                    listTable.ItemsSource =
+                    ListTable.ItemsSource =
                         Account.Storage.DomainList.Where(domain => domain.Type == Type.General).ToList();
                     break;
                 case "Forum":
-                    listTable.ItemsSource =
+                    ListTable.ItemsSource =
                         Account.Storage.DomainList.Where(domain => domain.Type == Type.Forum).ToList();
                     break;
                 case "School":
-                    listTable.ItemsSource =
+                    ListTable.ItemsSource =
                         Account.Storage.DomainList.Where(domain => domain.Type == Type.School).ToList();
                     break;
                 case "Shopping":
-                    listTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Shopping)
+                    ListTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Shopping)
                         .ToList();
                     break;
                 case "Work":
-                    listTable.ItemsSource =
+                    ListTable.ItemsSource =
                         Account.Storage.DomainList.Where(domain => domain.Type == Type.Work).ToList();
                     break;
                 default:
@@ -165,54 +178,67 @@ namespace PasswordGenerator.Src
             }
         }
 
-        private void Remove_Click(object sender, RoutedEventArgs e)
-        {
-            IEditableCollectionView items = listTable.Items;
-            if (items.CanRemove) items.Remove(listTable.SelectedItem);
-            _currentItem = null;
-        }
-
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            var generator = new Generator {TimeUpdatedField = {Text = DateTime.Now.ToShortTimeString()}};
+            var generator = new Generator
+            {
+                TimeUpdatedField = {Text = DateTime.Now.ToString(CultureInfo.InvariantCulture)}
+            };
             generator.ShowDialog();
+            if (generator.Domain == null) return;
+            Account.Storage.DomainList.Add(generator.Domain);
+            RefreshList();
+            _modified = true;
         }
 
-        private void Copy_Click(object sender, RoutedEventArgs e)
+        private void Remove_Click(object sender, RoutedEventArgs e)
         {
-            dynamic selectedItem = (Domain)listTable.SelectedItem;
-            if (selectedItem == null) return;
-            Clipboard.SetText(selectedItem.Password);
+            IEditableCollectionView items = ListTable.Items;
+            if (items.CanRemove) items.Remove(ListTable.SelectedItem);
+            _currentItem = null;
+            _modified = true;
         }
 
         private void Update_Click(object sender, RoutedEventArgs e)
         {
             if (_currentItem == null) return;
-            IEditableCollectionView items = listTable.Items;
-            if (items.CanRemove) items.Remove(listTable.SelectedItem);
             var generator = new Generator
             {
                 DomainField = {Text = _currentItem[0]},
                 UsernameField = {Text = _currentItem[1]},
                 OutputField = {Text = _currentItem[2]},
-                TimeUpdatedField = { Text = _currentItem[3] },
-                CommentField = {Text = _currentItem[4]}
+                TimeUpdatedField = {Text = _currentItem[3]},
+                CommentField = {Text = _currentItem[4]},
+                TypeSelector = {Text = _currentItem[5]}
             };
             generator.ShowDialog();
+            if (generator.Domain == null) return;
+            Account.Storage.DomainList.Add(generator.Domain);
+            IEditableCollectionView items = ListTable.Items;
+            if (items.CanRemove) items.Remove(ListTable.SelectedItem);
+            RefreshList();
+            _modified = true;
             _currentItem = null;
-
         }
 
         private void ChangedSelection(object sender, SelectionChangedEventArgs e)
         {
-            dynamic selectedItem = (Domain) listTable.SelectedItem;
+            dynamic selectedItem = (Domain) ListTable.SelectedItem;
             if (selectedItem == null) return;
-            _currentItem = new string[5];
+            _currentItem = new string[6];
             _currentItem[0] = selectedItem.Address;
             _currentItem[1] = selectedItem.Login;
             _currentItem[2] = selectedItem.Password;
             _currentItem[3] = selectedItem.TimeUpdated.ToString();
             _currentItem[4] = selectedItem.Comment;
+            _currentItem[5] = selectedItem.Type.ToString();
+        }
+
+        private void Copy_Click(object sender, RoutedEventArgs e)
+        {
+            dynamic selectedItem = (Domain) ListTable.SelectedItem;
+            if (selectedItem == null) return;
+            Clipboard.SetText(selectedItem.Password);
         }
 
         private void SortColumnClick(object sender, RoutedEventArgs e)
@@ -247,7 +273,7 @@ namespace PasswordGenerator.Src
             if (_sortColumn.Column.DisplayMemberBinding is Binding b) header = b.Path.Path;
 
             var resultDataView = CollectionViewSource.GetDefaultView(
-                listTable.ItemsSource);
+                ListTable.ItemsSource);
             resultDataView.SortDescriptions.Clear();
             resultDataView.SortDescriptions.Add(
                 new SortDescription(header, _sortDirection));

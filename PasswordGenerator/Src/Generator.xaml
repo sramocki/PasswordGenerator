@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:PasswordGenerator.Src"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Closing="Window_Closing"
         Title="Generator" Height="427" Width="649" WindowStartupLocation="CenterScreen">
     <Grid Margin="0,0,0,-6">
         <Button Content="Generate Password" Click="Button_Click" HorizontalAlignment="Left" Margin="40,335,0,0"

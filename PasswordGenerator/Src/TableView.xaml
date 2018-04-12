@@ -11,17 +11,17 @@
     <Grid>
         <Menu HorizontalAlignment="Left" Margin="0,0,0,385" Width="902">
             <MenuItem Header="_File">
-                <MenuItem Header="_New Password" Click="GenerateView_Click" />
-                <MenuItem Header="_Export" Click="ExportData_Click" />
-                <MenuItem Header="_Save" Click="Save_Click" />
-                <MenuItem Header="_Print Key" Click="PrintData_Click" />
-                <MenuItem Header="_Exit" Click="Shutdown_Click" />
+                <MenuItem Header="_New Password" Click="Add_Click" InputGestureText="Ctrl + N"/>
+                <MenuItem Header="_Export" Click="ExportData_Click" InputGestureText="Ctrl + X"/>
+                <MenuItem Header="_Save" Click="Save_Click" InputGestureText="Ctrl + S"/>
+                <MenuItem Header="_Print" InputGestureText="Ctrl + P" Click="PrintData_Click" />
+                <MenuItem Header="_Quit" InputGestureText="Alt + F4" Click="Shutdown_Click" />
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="_About" Click="About_Click" />
             </MenuItem>
         </Menu>
-        <ListView Margin="160,85,37,37" Name="listTable" SelectionChanged="ChangedSelection"
+        <ListView Margin="160,85,37,37" Name="ListTable" SelectionChanged="ChangedSelection"
                   GridViewColumnHeader.Click="SortColumnClick">
             <ListView.ContextMenu>
                 <ContextMenu>
@@ -73,7 +73,7 @@
             <ListViewItem x:Name="Shopping" Content="Shopping" />
             <ListViewItem x:Name="Work" Content="Work" />
         </ListView>
-        <Button Content="New Password" Click="GenerateView_Click" HorizontalAlignment="Left" Margin="215,40,0,0"
+        <Button Content="New Password" Click="Add_Click" HorizontalAlignment="Left" Margin="215,40,0,0"
                 VerticalAlignment="Top" Width="100" Height="25" />
         <Button Content="Update Password" Click="Update_Click" HorizontalAlignment="Left" Margin="465,40,0,0"
                 VerticalAlignment="Top" Width="105" Height="25" />

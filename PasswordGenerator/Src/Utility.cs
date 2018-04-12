@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -12,23 +11,12 @@ namespace PasswordGenerator.Src
     {
         private const int SaltSize = 8;
         private static readonly string DefaultPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Ramocki\data.ramocki");
-        private static string previousPath = WorkingPath;
         public static string WorkingPath { set; get; } = DefaultPath;
         public static FileInfo CurrentFile { set; get; } = new FileInfo(WorkingPath);
         public static Account Account { get; set; }
 
         [NonSerialized]
         private static string _currentPassword;
-
-        public static void ResetPathPrevious()
-        {
-            WorkingPath = DefaultPath;
-        }
-
-        public static void ResetPathDefault()
-        {
-            WorkingPath = previousPath;
-        }
 
         public static string ReturnPrint()
         {
@@ -50,22 +38,22 @@ namespace PasswordGenerator.Src
                     fs.Write(keyGenerator.Salt, 0, SaltSize);
                     using (var cryptoStream = new CryptoStream(fs, rijndael.CreateEncryptor(), CryptoStreamMode.Write))
                     {
-                        BinaryFormatter formatter = new BinaryFormatter();
+                        var formatter = new BinaryFormatter();
                         formatter.Serialize(cryptoStream, Account);
                     }
                 }
                 return true;
             }
-            catch (Exception e)
+            catch (SerializationException)
             {
-                Console.WriteLine(e.InnerException);
+                MessageBox.Show("Serialization Error");
                 return false;
             }
         }
 
         public static void CreateAccount(string key)
         {
-            Account temp = new Account();
+            var temp = new Account();
             Account = temp;
             _currentPassword = key;
         }
@@ -92,7 +80,7 @@ namespace PasswordGenerator.Src
                             return false;
                         }
 
-                        BinaryFormatter binaryFormatter = new BinaryFormatter();
+                        var binaryFormatter = new BinaryFormatter();
                         tempAccount = (Account)binaryFormatter.Deserialize(cryptoStream);
                     }
                 }

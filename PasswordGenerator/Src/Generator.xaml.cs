@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -7,7 +6,7 @@ using System.Security.Cryptography;
 
 namespace PasswordGenerator.Src
 {
-    public partial class Generator : Window
+    public partial class Generator
     {
         private const string LowerCase = "abcdefghijklmnopqrstuvwxyz";
         private const string UpperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -15,36 +14,15 @@ namespace PasswordGenerator.Src
         private const string SymbolCase = "!@#$%^&*()=+?";
         private const string SymbolCaseA = ",.~`_-[]{}<>:;/\\|";
         private const string SymbolCaseU = "¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿";
-        private readonly string _updateDomain;
-        private readonly string _updateUser;
-        private readonly string _updatePass;
-        private readonly string _updateComment;
-        private bool _modified;
+
+        public Domain Domain { set; get; }
 
         public Generator()
         {
             InitializeComponent();
-            _modified = false;
             LengthComboBox.SelectedIndex = 0;
             UpperCaseC.IsChecked = true;
             TypeSelector.SelectedIndex = 2;
-            if (_updatePass != string.Empty)
-            {
-                _updateDomain = DomainField.Text;
-                _updateUser = UsernameField.Text;
-                _updatePass = OutputField.Text;
-                _updateComment = CommentField.Text;
-            }
-        }
-
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            if (!_modified)
-            {
-                var table = Application.Current.Windows.OfType<TableView>().FirstOrDefault();
-                table?.Modify(new Domain(_updateDomain, _updateUser, _updatePass, DateTime.Now, _updateComment,
-                    (Type) Enum.Parse(typeof(Type), TypeSelector.Text, true)));
-            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -90,10 +68,8 @@ namespace PasswordGenerator.Src
 
         private void Submit_Click(object sender, RoutedEventArgs e)
         {
-            _modified = true;
-            var table = Application.Current.Windows.OfType<TableView>().FirstOrDefault();
-            table?.Modify(new Domain(DomainField.Text, UsernameField.Text, OutputField.Text, DateTime.Now,
-                CommentField.Text, (Type) Enum.Parse(typeof(Type), TypeSelector.Text, true)));
+            Domain = new Domain(DomainField.Text, UsernameField.Text, OutputField.Text, DateTime.Now,
+                CommentField.Text, (Type) Enum.Parse(typeof(Type), TypeSelector.Text, true));
             Close();
         }
     }
