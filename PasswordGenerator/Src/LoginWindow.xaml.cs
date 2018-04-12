@@ -70,8 +70,14 @@ namespace PasswordGenerator.Src
             if (File.Exists(Utility.WorkingPath))
             {
                 var result1 = MessageBox.Show( "Local data found\n\n Backup data first?", "Data Conflict",
-                    MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if (result1 == MessageBoxResult.Yes) File.Move(Utility.WorkingPath, Utility.WorkingPath + "_backup" + string.Format(DateTime.Now.Ticks.ToString()));
+                    MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+                if (result1 == MessageBoxResult.Yes)
+                    File.Move(Utility.WorkingPath,
+                        Utility.WorkingPath + "_backup" + string.Format(DateTime.Now.Ticks.ToString()));
+                else if (result1 == MessageBoxResult.Cancel)
+                {
+                    return;
+                }
             }
 
             var result2 = MessageBox.Show("Would you like to generate a USB key?",
