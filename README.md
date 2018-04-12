@@ -13,10 +13,8 @@ Features:
   * Encryption key generation to USB
   * Add/Update/Remove passwords
   * Sorting and filtering
-  
-Known issues:
-* Closing the update page for a password without hitting submit will reset the password type
-* Deleting the local data while running will crash the program
 
 Coming soon:
 * Notify of old passwords that need to be updated
+* Custom filter types
+* Improved UI
