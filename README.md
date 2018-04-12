@@ -16,3 +16,5 @@ Features:
 
 Coming soon:
 * Notify of old passwords that need to be updated
+* Custom filter types
+* Improved UI
