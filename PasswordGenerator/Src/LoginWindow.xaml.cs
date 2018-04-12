@@ -33,11 +33,11 @@ namespace PasswordGenerator.Src
             CommandBindings.Add(new CommandBinding(newKeybind, KeyCreate_Click));
 
             var unlockKeybind = new RoutedCommand();
-            unlockKeybind.InputGestures.Add(new KeyGesture(Key.U));
+            unlockKeybind.InputGestures.Add(new KeyGesture(Key.U, ModifierKeys.Control));
             CommandBindings.Add(new CommandBinding(unlockKeybind, USBRead_Click));
 
             var importKey = new RoutedCommand();
-            importKey.InputGestures.Add(new KeyGesture(Key.I));
+            importKey.InputGestures.Add(new KeyGesture(Key.I, ModifierKeys.Control));
             CommandBindings.Add(new CommandBinding(importKey, ImportData_Click));
         }
 
@@ -69,15 +69,12 @@ namespace PasswordGenerator.Src
         {
             if (File.Exists(Utility.WorkingPath))
             {
-                var result1 = MessageBox.Show( "Local data found\n\n Backup data first?", "Data Conflict",
+                var result1 = MessageBox.Show("Local data found\n\n Backup data first?", "Data Conflict",
                     MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
                 if (result1 == MessageBoxResult.Yes)
                     File.Move(Utility.WorkingPath,
                         Utility.WorkingPath + "_backup" + string.Format(DateTime.Now.Ticks.ToString()));
-                else if (result1 == MessageBoxResult.Cancel)
-                {
-                    return;
-                }
+                else if (result1 == MessageBoxResult.Cancel) return;
             }
 
             var result2 = MessageBox.Show("Would you like to generate a USB key?",
@@ -104,20 +101,11 @@ namespace PasswordGenerator.Src
                                 "Key already found on this USB, would you like to override it?", "Error",
                                 MessageBoxButton.YesNo, MessageBoxImage.Error);
                             if (resultz == MessageBoxResult.Yes)
-                                try
-                                {
-                                    Utility.CreateAccount(key);
-                                    Utility.Save();
-                                    Clipboard.SetText(key);
-                                    MessageBox.Show("Key added to " + driveInfos[0] + "\n\n" + key, "Key Generated",
-                                        MessageBoxButton.OK,
-                                        MessageBoxImage.None);
-                                    File.WriteAllText(path, key);
-                                }
-                                catch (Exception exception)
-                                {
-                                    MessageBox.Show(exception.ToString());
-                                }
+                                KeyMakerUSB(key, path);
+                        }
+                        else
+                        {
+                            KeyMakerUSB(key, path);
                         }
                     }
 
@@ -143,9 +131,26 @@ namespace PasswordGenerator.Src
             }
         }
 
+        private static void KeyMakerUSB(string key, string path)
+        {
+            try
+            {
+                Utility.CreateAccount(key);
+                Utility.Save();
+                Clipboard.SetText(key);
+                MessageBox.Show("Key: " + key, "Key Generated", MessageBoxButton.OK, MessageBoxImage.None);
+                File.WriteAllText(path, key);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.ToString());
+            }
+        }
+
         private void Shutdown_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("Do you want to close this program", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question) ==
+            if (MessageBox.Show("Do you want to close this program", "Confirmation", MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) ==
                 MessageBoxResult.Yes)
                 Application.Current.Shutdown();
         }

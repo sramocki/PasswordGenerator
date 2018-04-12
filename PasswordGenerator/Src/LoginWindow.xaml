@@ -14,8 +14,8 @@
         <Menu HorizontalAlignment="Left" Margin="4,6,0,155" Width="395">
             <MenuItem Header="_File">
                 <MenuItem Header="_New Encryption Key" InputGestureText="Ctrl + N" Click="KeyCreate_Click" />
-                <MenuItem Header="_Unlock with USB" InputGestureText="U" Click="USBRead_Click" />
-                <MenuItem Header="_Import Data" InputGestureText="I" Click="ImportData_Click" />
+                <MenuItem Header="_Unlock with USB" InputGestureText="Ctrl + U" Click="USBRead_Click" />
+                <MenuItem Header="_Import Data" InputGestureText="Ctrl + I" Click="ImportData_Click" />
                 <MenuItem Header="_Quit" InputGestureText="Alt + F4" Click="Shutdown_Click" />
             </MenuItem>
             <MenuItem Header="_Edit">
