@@ -15,7 +15,7 @@ Features:
   * Sorting and filtering
   
 Known Issues:
-* Deleting local data breaks account creation
+* Deleting local data breaks key creation
 
 Coming soon:
 * Notify of old passwords that need to be updated
