@@ -13,6 +13,9 @@ Features:
   * Encryption key generation to USB
   * Add/Update/Remove passwords
   * Sorting and filtering
+  
+Known Issues:
+* Deleting local data breaks account creation
 
 Coming soon:
 * Notify of old passwords that need to be updated
