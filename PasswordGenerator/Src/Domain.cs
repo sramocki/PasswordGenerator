@@ -22,6 +22,7 @@ namespace PasswordGenerator.Src
     public class Domain
     {
         private string _address, _login, _password, _comment;
+        private string _timeExceeded;
         private DateTime _timeUpdated;
         private Type _type;
 
@@ -33,6 +34,19 @@ namespace PasswordGenerator.Src
             TimeUpdated = timeUpdated;
             Comment = comment;
             Type = type;
+        }
+
+        public string TimeExceeded
+        {
+            get
+            {
+                if (DateTime.Now.Year != TimeUpdated.Year)
+                {
+                    return "⚠️";
+                }
+                return Math.Abs(DateTime.Now.DayOfYear - TimeUpdated.DayOfYear) > 90 ? "⚠️" : "✔️";
+            }
+            set => _timeExceeded = value;
         }
 
         public string Address

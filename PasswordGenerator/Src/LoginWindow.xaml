@@ -6,12 +6,12 @@
         xmlns:local="clr-namespace:PasswordGenerator.Src"
         ResizeMode="CanMinimize"
         mc:Ignorable="d"
-        Title="Password Generator" Height="206" Width="400" WindowStartupLocation="CenterScreen">
-    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Height="181" Margin="0,0,-5,-4" Width="399">
+        Title="Password Generator" Height="200" Width="400" WindowStartupLocation="CenterScreen">
+    <Grid>
         <TextBox Name="KeyField" HorizontalAlignment="Left" KeyDown="DecryptionByKey_Key" Height="20"
-                 Margin="16,73,0,0" TextWrapping="Wrap" Text="Enter decryption key here" VerticalAlignment="Top"
+                 Margin="10,61,0,0" TextWrapping="Wrap" Text="Enter decryption key here" VerticalAlignment="Top"
                  Width="360" GotFocus="YourGotFocusEvent" TextAlignment="Center" Background="White" TextDecorations="{x:Null}"/>
-        <Menu HorizontalAlignment="Left" Margin="4,6,0,155" Width="395">
+        <Menu HorizontalAlignment="Left" Margin="0,0,-3,135" Width="397">
             <MenuItem Header="_File">
                 <MenuItem Header="_New Encryption Key" InputGestureText="Ctrl + N" Click="KeyCreate_Click" />
                 <MenuItem Header="_Unlock with USB" InputGestureText="Ctrl + U" Click="USBRead_Click" />
@@ -25,11 +25,17 @@
                 <MenuItem Header="_About" Click="About_Click" />
             </MenuItem>
         </Menu>
-        <Button Content="Submit" Click="DecryptionByKey_Click" HorizontalAlignment="Left" Margin="154,114,0,0"
-                VerticalAlignment="Top" Width="92" Height="21"/>
-        <Button Content="USB Unlock" Click="USBRead_Click" HorizontalAlignment="Left" Margin="154,145,0,0"
-                VerticalAlignment="Top" Width="92" Height="21" />
-
+        <Button Content="Log In" Click="DecryptionByKey_Click" HorizontalAlignment="Left" Margin="10,97,0,0"
+                VerticalAlignment="Top" Width="360" Height="22"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,41,0,0" TextWrapping="Wrap" Text="Encryption Key:" VerticalAlignment="Top" RenderTransformOrigin="0.092,2.719"/>
+        <Button Margin="10,124,309,10" Background="White" BorderBrush="White">
+            <Hyperlink Click="KeyCreate_Click">New User?</Hyperlink>
+        </Button>
+        <Button Margin="295,124,24,10" Background="White" BorderBrush="White">
+            <Hyperlink Click="USBRead_Click">
+                <Run Text="USB Log In"/>
+            </Hyperlink>
+        </Button>
     </Grid>
 
 </Window>

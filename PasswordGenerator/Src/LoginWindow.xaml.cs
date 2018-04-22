@@ -174,7 +174,7 @@ namespace PasswordGenerator.Src
             Utility.CurrentFile = new FileInfo(Utility.WorkingPath);
         }
 
-        public void YourGotFocusEvent(object sender, RoutedEventArgs e)
+        private void YourGotFocusEvent(object sender, RoutedEventArgs e)
         {
             KeyField.Text = string.Empty;
             KeyField.GotFocus -= YourGotFocusEvent;

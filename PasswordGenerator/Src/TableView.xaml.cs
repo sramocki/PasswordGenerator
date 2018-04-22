@@ -83,9 +83,15 @@ namespace PasswordGenerator.Src
         {
             var temp = Utility.Save();
             if (temp)
+            {
                 MessageBox.Show("Data saved", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                _modified = false;
+            }
+
             else
+            {
                 MessageBox.Show("Could not save data", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }        
         }
 
         private void ExportData_Click(object sender, RoutedEventArgs e)

@@ -68,9 +68,16 @@ namespace PasswordGenerator.Src
 
         private void Submit_Click(object sender, RoutedEventArgs e)
         {
-            Domain = new Domain(DomainField.Text, UsernameField.Text, OutputField.Text, DateTime.Now,
-                CommentField.Text, (Type) Enum.Parse(typeof(Type), TypeSelector.Text, true));
-            Close();
+            if (DomainField.Text.Equals("") || UsernameField.Text.Equals("") || OutputField.Text.Equals(""))
+            {
+                MessageBox.Show("Fields cannot be left blank!", "Error!", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else
+            {
+                Domain = new Domain(DomainField.Text, UsernameField.Text, OutputField.Text, DateTime.Now,
+                    CommentField.Text, (Type)Enum.Parse(typeof(Type), TypeSelector.Text, true));
+                Close();
+            }
         }
     }
 }

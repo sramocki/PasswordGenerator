@@ -33,6 +33,11 @@
             </ListView.ContextMenu>
             <ListView.View>
                 <GridView>
+                    <GridViewColumn Width="30" DisplayMemberBinding="{Binding TimeExceeded}">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="📜" />
+                        </GridViewColumn.Header>
+                    </GridViewColumn>
                     <GridViewColumn Width="140" DisplayMemberBinding="{Binding Address}">
                         <GridViewColumn.Header>
                             <GridViewColumnHeader Content="Domain" />
