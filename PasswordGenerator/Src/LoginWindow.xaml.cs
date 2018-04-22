@@ -59,6 +59,11 @@ namespace PasswordGenerator.Src
 
         private void Decrypt()
         {
+            if(KeyField.Text.Equals(""))
+            {
+                MessageBox.Show("This field cannot be left blank", "Input error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
             if (!Utility.Load(KeyField.Text)) return;
             var table = new TableView();
             table.Show();

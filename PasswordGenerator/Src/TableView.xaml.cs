@@ -40,6 +40,11 @@ namespace PasswordGenerator.Src
             var printBind = new RoutedCommand();
             printBind.InputGestures.Add(new KeyGesture(Key.P, ModifierKeys.Control));
             CommandBindings.Add(new CommandBinding(printBind, PrintData_Click));
+            int numOutdated = Account.Storage.SearchOutdated();
+            if(numOutdated > 0)
+            {
+                MessageBox.Show("You have " + numOutdated + " passwords that are over 90 days old!", "Outdated passwords", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
 
         private void Shutdown_Click(object sender, RoutedEventArgs e)
