@@ -23,7 +23,7 @@ namespace PasswordGenerator.Src
         {
             Account = Utility.Account;
             InitializeComponent();
-            ListTable.ItemsSource = Account.Storage.DomainList;
+            ListTable.ItemsSource = Account.Storage.DomainList.OrderBy(p => p.Address).ToList();
 
             var saveKeybind = new RoutedCommand();
             saveKeybind.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
@@ -121,7 +121,7 @@ namespace PasswordGenerator.Src
         public void RefreshList()
         {
             ListTable.ItemsSource = null;
-            ListTable.ItemsSource = Account.Storage.DomainList;
+            ListTable.ItemsSource = Account.Storage.DomainList.OrderBy(p => p.Address).ToList();
         }
 
         public void PrintData_Click(object sender, RoutedEventArgs e)
@@ -154,35 +154,34 @@ namespace PasswordGenerator.Src
             switch ((FilterList.SelectedItem as ListViewItem)?.Content.ToString())
             {
                 case "All":
-                    ListTable.ItemsSource = Account.Storage.DomainList;
+                    ListTable.ItemsSource = Account.Storage.DomainList.OrderBy(p => p.Address).ToList();
                     break;
                 case "Bank":
                     ListTable.ItemsSource =
-                        Account.Storage.DomainList.Where(domain => domain.Type == Type.Bank).ToList();
+                        Account.Storage.DomainList.Where(domain => domain.Type == Type.Bank).OrderBy(p => p.Address).ToList();
                     break;
                 case "Game":
                     ListTable.ItemsSource =
-                        Account.Storage.DomainList.Where(domain => domain.Type == Type.Game).ToList();
+                        Account.Storage.DomainList.Where(domain => domain.Type == Type.Game).OrderBy(p => p.Address).ToList();
                     break;
                 case "General":
                     ListTable.ItemsSource =
-                        Account.Storage.DomainList.Where(domain => domain.Type == Type.General).ToList();
+                        Account.Storage.DomainList.Where(domain => domain.Type == Type.General).OrderBy(p => p.Address).ToList();
                     break;
                 case "Forum":
                     ListTable.ItemsSource =
-                        Account.Storage.DomainList.Where(domain => domain.Type == Type.Forum).ToList();
+                        Account.Storage.DomainList.Where(domain => domain.Type == Type.Forum).OrderBy(p => p.Address).ToList();
                     break;
                 case "School":
                     ListTable.ItemsSource =
-                        Account.Storage.DomainList.Where(domain => domain.Type == Type.School).ToList();
+                        Account.Storage.DomainList.Where(domain => domain.Type == Type.School).OrderBy(p => p.Address).ToList(); ;
                     break;
                 case "Shopping":
-                    ListTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Shopping)
-                        .ToList();
+                    ListTable.ItemsSource = Account.Storage.DomainList.Where(domain => domain.Type == Type.Shopping).OrderBy(p => p.Address).ToList();
                     break;
                 case "Work":
                     ListTable.ItemsSource =
-                        Account.Storage.DomainList.Where(domain => domain.Type == Type.Work).ToList();
+                        Account.Storage.DomainList.Where(domain => domain.Type == Type.Work).OrderBy(p => p.Address).ToList();
                     break;
                 default:
                     break;
