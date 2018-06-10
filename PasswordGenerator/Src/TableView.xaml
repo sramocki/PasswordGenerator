@@ -25,7 +25,8 @@
                   GridViewColumnHeader.Click="SortColumnClick">
             <ListView.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Copy Password" Name="Copy" Click="Copy_Click" />
+                    <MenuItem Header="Copy Login" Name="CopyLogin" Click="CopyLogin_Click" />
+                    <MenuItem Header="Copy Password" Name="CopyPassword" Click="CopyPassword_Click" />
                     <MenuItem Header="Add" Name="Add" Click="Add_Click" />
                     <MenuItem Header="Update" Name="Update" Click="Update_Click" />
                     <MenuItem Header="Remove" Name="Remove" Click="Remove_Click" />

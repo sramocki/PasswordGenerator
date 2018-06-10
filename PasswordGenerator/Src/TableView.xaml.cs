@@ -244,11 +244,22 @@ namespace PasswordGenerator.Src
             _currentItem[5] = selectedItem.Type.ToString();
         }
 
-        private void Copy_Click(object sender, RoutedEventArgs e)
+        private void CopyLogin_Click(object sender, RoutedEventArgs e)
+        {
+            dynamic selectedItem = (Domain)ListTable.SelectedItem;
+            if (selectedItem == null) return;
+            Clipboard.SetText(selectedItem.Password);
+            System.Threading.Thread.Sleep(10000);
+            Clipboard.SetText("Empty!");
+        }
+
+        private void CopyPassword_Click(object sender, RoutedEventArgs e)
         {
             dynamic selectedItem = (Domain) ListTable.SelectedItem;
             if (selectedItem == null) return;
             Clipboard.SetText(selectedItem.Password);
+            System.Threading.Thread.Sleep(10000);
+            Clipboard.SetText("Empty!");
         }
 
         private void SortColumnClick(object sender, RoutedEventArgs e)
