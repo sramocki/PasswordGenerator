@@ -249,8 +249,6 @@ namespace PasswordGenerator.Src
             dynamic selectedItem = (Domain)ListTable.SelectedItem;
             if (selectedItem == null) return;
             Clipboard.SetText(selectedItem.Password);
-            System.Threading.Thread.Sleep(10000);
-            Clipboard.SetText("Empty!");
         }
 
         private void CopyPassword_Click(object sender, RoutedEventArgs e)
